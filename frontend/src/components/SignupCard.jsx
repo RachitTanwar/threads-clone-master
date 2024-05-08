@@ -126,7 +126,7 @@ export default function SignupCard() {
 						</FormControl>
 						<FormControl isRequired>
 							<ReCAPTCHA
-								sitekey="6Ldfb9UpAAAAAJnLQ8WoO8NgKURlTue_w4-TWWzh"
+								sitekey="6Ldfb9UpAAAAAG3a2YvcBDpW8Vxrwtdh7uxjeGMO"
 								onChange={handleCaptchaChange}
 							/>
 						</FormControl>
