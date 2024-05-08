@@ -19,19 +19,29 @@ import { useSetRecoilState } from "recoil";
 import authScreenAtom from "../atoms/authAtom";
 import useShowToast from "../hooks/useShowToast";
 import userAtom from "../atoms/userAtom";
+import ReCAPTCHA from "react-google-recaptcha";
 
 export default function LoginCard() {
 	const [showPassword, setShowPassword] = useState(false);
 	const setAuthScreen = useSetRecoilState(authScreenAtom);
 	const setUser = useSetRecoilState(userAtom);
 	const [loading, setLoading] = useState(false);
-
+	const [captchaValue, setCaptchaValue] = useState("");
 	const [inputs, setInputs] = useState({
 		username: "",
 		password: "",
 	});
 	const showToast = useShowToast();
+
+	const handleCaptchaChange = (value) => {
+		setCaptchaValue(value);
+	};
+
 	const handleLogin = async () => {
+		if (!captchaValue) {
+			showToast("Error", "Please complete the CAPTCHA", "error");
+			return;
+		}
 		setLoading(true);
 		try {
 			const res = await fetch("/api/users/login", {
@@ -39,7 +49,7 @@ export default function LoginCard() {
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify(inputs),
+				body: JSON.stringify({ ...inputs, captchaValue }),
 			});
 			const data = await res.json();
 			if (data.error) {
@@ -54,6 +64,7 @@ export default function LoginCard() {
 			setLoading(false);
 		}
 	};
+
 	return (
 		<Flex align={"center"} justify={"center"}>
 			<Stack spacing={8} mx={"auto"} maxW={"lg"} py={12} px={6}>
@@ -98,6 +109,12 @@ export default function LoginCard() {
 									</Button>
 								</InputRightElement>
 							</InputGroup>
+						</FormControl>
+						<FormControl isRequired>
+							<ReCAPTCHA
+								sitekey="6Ldfb9UpAAAAAJnLQ8WoO8NgKURlTue_w4-TWWzh"
+								onChange={handleCaptchaChange}
+							/>
 						</FormControl>
 						<Stack spacing={10} pt={2}>
 							<Button

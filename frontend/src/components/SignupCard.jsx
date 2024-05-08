@@ -20,6 +20,7 @@ import { useSetRecoilState } from "recoil";
 import authScreenAtom from "../atoms/authAtom";
 import useShowToast from "../hooks/useShowToast";
 import userAtom from "../atoms/userAtom";
+import ReCAPTCHA from "react-google-recaptcha";
 
 export default function SignupCard() {
 	const [showPassword, setShowPassword] = useState(false);
@@ -30,18 +31,26 @@ export default function SignupCard() {
 		email: "",
 		password: "",
 	});
-
 	const showToast = useShowToast();
 	const setUser = useSetRecoilState(userAtom);
+	const [captchaValue, setCaptchaValue] = useState("");
+
+	const handleCaptchaChange = (value) => {
+		setCaptchaValue(value);
+	};
 
 	const handleSignup = async () => {
+		if (!captchaValue) {
+			showToast("Error", "Please complete the CAPTCHA", "error");
+			return;
+		}
 		try {
 			const res = await fetch("/api/users/signup", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify(inputs),
+				body: JSON.stringify({ ...inputs, captchaValue }),
 			});
 			const data = await res.json();
 
@@ -114,6 +123,12 @@ export default function SignupCard() {
 									</Button>
 								</InputRightElement>
 							</InputGroup>
+						</FormControl>
+						<FormControl isRequired>
+							<ReCAPTCHA
+								sitekey="6Ldfb9UpAAAAAJnLQ8WoO8NgKURlTue_w4-TWWzh"
+								onChange={handleCaptchaChange}
+							/>
 						</FormControl>
 						<Stack spacing={10} pt={2}>
 							<Button
